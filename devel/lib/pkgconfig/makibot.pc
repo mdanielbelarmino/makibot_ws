@@ -1,0 +1,8 @@
+prefix=/home/awsol/makibot_ws/devel
+
+Name: makibot
+Description: Description of makibot
+Version: 0.0.0
+Cflags: 
+Libs: -L${prefix}/lib 
+Requires: 
