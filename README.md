@@ -14,4 +14,5 @@ UbuntuMate OS for Raspberry Pi\
 ROS Melodic\
 Arduino IDE\
 OpenCV\
-Aruco_ROS
+Aruco_ROS\
+Ros_serial
