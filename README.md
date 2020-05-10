@@ -9,7 +9,6 @@ Raspberry Pi wide Angle Camera\
 Servo Motor\
 3D Printed Parts\
 Brass standoff and M3 screws\
-
 ### Software:
 UbuntuMate OS for Raspberry Pi\
 ROS Melodic\
