@@ -24,13 +24,14 @@ Servo claw_servo;  // create servo object to control a servo
 #define BUZZ 13
 
 
-#define forward false
-#define reverse true
+#define forward true
+#define reverse false
 
 #define left true
 #define right false
 
 uint16_t spd = 255;
+uint8_t servo_pos = 130;
 
 ros::NodeHandle  nh;
 String rec;
@@ -54,9 +55,10 @@ void messageCb( const std_msgs::String& cmd)
     else if (rec == "S")
       brake();
     else if (rec == "W")
-      claw_servo.write(80);
+      fork_lift(true);
     else if (rec == "w")
-      claw_servo.write(130);
+      fork_lift(false);
+    //      claw_servo.write(145);
     else if (rec == "U")
       digitalWrite(LED2, HIGH);
     else if (rec == "u")
@@ -66,7 +68,7 @@ void messageCb( const std_msgs::String& cmd)
     else if (rec == "v")
       digitalWrite(BUZZ, LOW);
     else if ( rec == "z")
-      buzz(5); 
+      buzz(5);
   }
   delay(100);
   brake();
@@ -88,25 +90,25 @@ void setup()
   pinMode(LED1, OUTPUT);
   pinMode(LED2, OUTPUT);
   pinMode(LED3, OUTPUT);
-  pinMode(BUZZ, OUTPUT);  
-  claw_servo.attach(10);  // attaches the servo on pin 9 to the servo object
-  
+  pinMode(BUZZ, OUTPUT);
+  claw_servo.attach(11);  // attaches the servo on pin 9 to the servo object
+
 }
 
 String prev_rec;
 int ctr = 0;
 void loop()
 {
-/*
-  if(prev_rec == rec)
-  {
-    ctr++;
-    prev_rec = rec;
-    if(ctr > 20)
-     brake();
-  } */
-  
-  
+  /*
+    if(prev_rec == rec)
+    {
+      ctr++;
+      prev_rec = rec;
+      if(ctr > 20)
+       brake();
+    } */
+
+
   nh.spinOnce();
   delay(1);
 
@@ -154,6 +156,33 @@ void loop()
         buzz(5);
     }
   */
+
+}
+
+bool prev_stat = false;
+void fork_lift(bool stat)
+{
+
+  if (prev_stat != stat)
+  {
+    if (stat)
+    {
+      for ( int i = 130; i < 145; i++)
+      {
+        delay(10);
+        claw_servo.write(i);
+      }
+    }
+    else
+    {
+      for ( int i = 145; i > 130; i--)
+      {
+        delay(10);
+        claw_servo.write(i);
+      }
+    }
+    prev_stat = stat;
+  }
 
 }
 
