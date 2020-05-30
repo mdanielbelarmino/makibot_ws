@@ -41,20 +41,24 @@ void setup()
 {
 
   Serial.begin(9600);
-//  pinMode(motorR_A, OUTPUT);
-//  pinMode(motorR_B, OUTPUT);
-//  pinMode(motorL_A, OUTPUT);
-//  pinMode(motorL_B, OUTPUT);
+  //  pinMode(motorR_A, OUTPUT);
+  //  pinMode(motorR_B, OUTPUT);
+  //  pinMode(motorL_A, OUTPUT);
+  //  pinMode(motorL_B, OUTPUT);
   pinMode(TRIG_PIN, OUTPUT);
   pinMode(ECHO_PIN, INPUT);
-//  pinMode(LED1, OUTPUT);
-//  pinMode(LED2, OUTPUT);
-//  pinMode(LED3, OUTPUT);
+  //  pinMode(LED1, OUTPUT);
+  //  pinMode(LED2, OUTPUT);
+  //  pinMode(LED3, OUTPUT);
   pinMode(BUZZ, OUTPUT);
   carrier_servo.attach(11);  // attaches the servo on pin 9 to the servo object
 
 }
 
+
+const int rest_pos = 70;
+const int drop_pos = 15;
+int servo_pos = rest_pos; //130 rest, 90 drop
 
 void loop()
 {
@@ -70,18 +74,38 @@ void loop()
     // m,1,250,1,250,140,1
     if (Serial.read() == 'm')
     {
-
       bool dir_L = Serial.parseInt();
       int spd_L = Serial.parseInt();
       bool dir_R = Serial.parseInt();
       int spd_R = Serial.parseInt();
-      int servo_pos = Serial.parseInt();
+      int servo_state = Serial.parseInt();
       int buzz_state = Serial.parseInt();
 
       rotate(motorL_A, motorL_B, spd_L, dir_L);
       rotate(motorR_A, motorR_B, spd_R, dir_R);
 
-      //carrier_servo.write(servo_pos);
+      if ( servo_state&& (servo_pos == rest_pos))
+      {
+        for (int i = servo_pos; i > drop_pos; i--)
+        {
+          carrier_servo.write(i);
+          delay(20);
+        }
+        servo_pos = drop_pos;
+      }
+
+      else if( (servo_state == 0) && (servo_pos == drop_pos))
+      {
+        for (int i = servo_pos; i < rest_pos; i++)
+        {
+          carrier_servo.write(i);
+          delay(20);
+        }
+        servo_pos = rest_pos;
+      }
+
+
+
     }
 
   }

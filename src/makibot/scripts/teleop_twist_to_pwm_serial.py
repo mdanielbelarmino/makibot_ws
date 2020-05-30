@@ -46,11 +46,16 @@ def sendCallback(msg):
     print("%f %d %d \n"%(spd, pwm_l, pwm_r))
 
 
-    if spd >= 0:
-        ser.write('m,%d,%d,%d,%d,%d,%d \n'%(0,pwm_l,0,pwm_r,0,0))
-
-    elif spd < 0.0:
-        ser.write('m,%d,%d,%d,%d,%d,%d \n'%(1,pwm_l,1,pwm_r,0,0))
+    if spd > 0:
+        ser.write('m,%d,%d,%d,%d,%d,%d \n'%(0,pwm_l,0,pwm_r,1,0))
+            
+    elif spd < 0:
+        ser.write('m,%d,%d,%d,%d,%d,%d \n'%(1,pwm_l,1,pwm_r,1,0))
+    elif spd == 0:
+        if msg.linear.y == 1:
+            ser.write('m,%d,%d,%d,%d,%d,%d \n'%(0,0,0,0,1,0))
+        else:
+            ser.write('m,%d,%d,%d,%d,%d,%d \n'%(0,0,0,0,0,0))
  
     # if msg.linear.y > 0:
     #     ser.write('m,%d,%d,%d,%d,%d,%d \n'%(0,pwm_l,0,pwm_r,130,0))
