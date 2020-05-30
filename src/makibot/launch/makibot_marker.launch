@@ -1,3 +1,5 @@
+
+<!-- upload arduino_v1.ino on your arduino nano -->
 <launch>
 
 	<include file="$(find aruco_ros)/launch/usb_cam_stream_publisher.launch" />

@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 
 import rospy
-from sensor_msgs.msg import LaserScan
 from std_msgs.msg import Float32
 from std_msgs.msg import String
 

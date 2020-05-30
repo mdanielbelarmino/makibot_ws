@@ -205,10 +205,11 @@ include_directories(
 ## Add folders to be run by python nosetests
 # catkin_add_nosetests(test)
 catkin_install_python(PROGRAMS
-        scripts/offset_to_cmd.py
+        scripts/offset_to_cmd_color.py
         scripts/sentry.py
-	scripts/offset_to_cmd_marker.py
+	      scripts/offset_to_cmd_marker.py
         scripts/marker_follower.py
-	scripts/makibot_teleop.py
+	      scripts/makibot_teleop.py
+        scripts/teleop_twist_to_pwm_serial.py
         DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
 

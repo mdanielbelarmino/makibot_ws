@@ -128,19 +128,15 @@ if __name__=="__main__":
             if key == 'w' :
                 target_linear_vel = checkLinearLimitVelocity(target_linear_vel + LIN_VEL_STEP_SIZE)
                 status = status + 1
-                print(vels(target_linear_vel,target_angular_vel))
             elif key == 'x' :
                 target_linear_vel = checkLinearLimitVelocity(target_linear_vel - LIN_VEL_STEP_SIZE)
                 status = status + 1
-                print(vels(target_linear_vel,target_angular_vel))
             elif key == 'a' :
                 target_angular_vel = checkAngularLimitVelocity(target_angular_vel + ANG_VEL_STEP_SIZE)
                 status = status + 1
-                print(vels(target_linear_vel,target_angular_vel))
             elif key == 'd' :
                 target_angular_vel = checkAngularLimitVelocity(target_angular_vel - ANG_VEL_STEP_SIZE)
                 status = status + 1
-                print(vels(target_linear_vel,target_angular_vel))
             elif key == 'q' :
                 claw_stat = 1
                 status = status + 1
@@ -152,7 +148,6 @@ if __name__=="__main__":
                 control_linear_vel  = 0.0
                 target_angular_vel  = 0.0
                 control_angular_vel = 0.0
-                print(vels(target_linear_vel, target_angular_vel))
             else:
                 if (key == '\x03'):
                     break
@@ -160,6 +155,8 @@ if __name__=="__main__":
             if status == 20 :
                 print(msg)
                 status = 0
+            
+            print(vels(target_linear_vel, target_angular_vel))
 
             twist = Twist()
 

@@ -81,7 +81,7 @@ void loop()
       rotate(motorL_A, motorL_B, spd_L, dir_L);
       rotate(motorR_A, motorR_B, spd_R, dir_R);
 
-      carrier_servo.write(servo_pos);
+      //carrier_servo.write(servo_pos);
     }
 
   }

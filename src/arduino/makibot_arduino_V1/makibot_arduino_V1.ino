@@ -24,8 +24,8 @@ Servo claw_servo;  // create servo object to control a servo
 #define BUZZ 13
 
 
-#define forward true
-#define reverse false
+#define forward false
+#define reverse true
 
 #define left true
 #define right false
