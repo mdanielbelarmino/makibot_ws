@@ -2,72 +2,108 @@
 
 # Real-time Color Segmentation 
 import cv2
+from cv_bridge import CvBridge, CvBridgeError
 import numpy as np
 import time
 import rospy
 from std_msgs.msg import Float32
+from sensor_msgs.msg import Image
+from geometry_msgs.msg import Twist
 
-cap = cv2.VideoCapture(0)
-offset = 0
-time.sleep(1)
-prev_offset = 0
-p_w = 0
+image_pub = rospy.Publisher('/line_detect_result', Image, queue_size=10)
+twist_pub = rospy.Publisher('/cmd_vel', Twist, queue_size=10)
 
-def segment():
-    global offset
-    global prev_offset
-    pub = rospy.Publisher('center_offset', Float32, queue_size=10)
-    rospy.init_node('color_segmentation', anonymous=True)
-    rate = rospy.Rate(30)
-    while not rospy.is_shutdown():
-        _, frame = cap.read()
-        prev_offset = offset
-        # Convert BGR to HSV
-        hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
+MAKIBOT_MAX_LIN_VEL = 0.22
+MAKIBOT_MAX_ANG_VEL = 2.84
 
-        # define range of blue color in HSV
-        lower_yellow = np.array([10,130,100])
-        upper_yellow = np.array([25,255,255])
+LIN_VEL_STEP_SIZE = 0.01
+ANG_VEL_STEP_SIZE = 0.1
+
+def makeSimpleProfile(output, input, slop):
+    if input > output:
+        output = min( input, output + slop )
+    elif input < output:
+        output = max( input, output - slop )
+    else:
+        output = input
+
+    return output
 
 
-        # Threshold the HSV image to get only blue colors
-        mask = cv2.inRange(hsv, lower_yellow, upper_yellow)
+def imageCallback(msg):
+    twist = Twist()
+    target_linear_vel   = 0.0
+    target_angular_vel  = 0.0
+    control_linear_vel  = 0.0
+    control_angular_vel = 0.0
 
-        # Bitwise-AND mask and original image
-        res = cv2.bitwise_and(frame,frame, mask= mask)#(src1,src2,  )
-        
-        ret,thrshed = cv2.threshold(cv2.cvtColor(res,cv2.COLOR_BGR2GRAY),3,255,cv2.THRESH_BINARY)
-        image, contours, hierarchy = cv2.findContours(thrshed,cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
-        
-        for cnt in contours:
-            area = cv2.contourArea(cnt)
-            if area > 500:
-                x,y,w,h = cv2.boundingRect(cnt)
-                frame = cv2.rectangle(frame,(x,y),(x+w,y+h),(0,255,0),2)
-                cv2.circle(frame,(int(x+(w/2)),int(y+(h/2))), 10, (0,0,255), -1)
-                offset = int( (frame.shape[1]/2) - (x+(w/2)))
-        if len(contours) < 2:
-            offset = 0
+    bridge = CvBridge()
+    spd = 0.0
+    ang = 0.0
+    try:
+      cv_image = bridge.imgmsg_to_cv2(msg, "bgr8")
+    except CvBridgeError as e:
+      print(e)
 
-        cv2.line(frame,(int(frame.shape[1]/2),0),(int(frame.shape[1]/2),511),(255,0,0),1)
-        font = cv2.FONT_HERSHEY_SIMPLEX
-        cv2.putText(frame,str(offset) + "px",(10,400), font, 1 ,(255,0,255),1,cv2.LINE_AA)
-        
-        #cv2.imshow('frame',frame)
-        k = cv2.waitKey(5) & 0xFF
-        if k == 27:
-            break
+    frame = cv_image
+    x, y, c = frame.shape
 
-        if prev_offset != offset:
-            rospy.loginfo(str(offset))
-            pub.publish(offset)
-        rate.sleep()
+    # Crop the image
+    crop_img = frame[int(0.3*x):x, 0:y]
+    # Convert to grayscale
+    gray = cv2.cvtColor(crop_img, cv2.COLOR_BGR2GRAY)
+    # Gaussian blur
+    blur = cv2.GaussianBlur(gray,(5,5),0)
+    # Color thresholding
+    ret,thresh = cv2.threshold(blur,90,255,cv2.THRESH_BINARY_INV)
+    # Find the contours of the frame
+    _ ,contours,hierarchy = cv2.findContours(thresh.copy(), 1, cv2.CHAIN_APPROX_NONE)
+    # Find the biggest contour (if detected)
+    if len(contours) > 0:
+        c = max(contours, key=cv2.contourArea)
+        M = cv2.moments(c)
+        cx = int(M['m10']/M['m00'])
+        cy = int(M['m01']/M['m00'])
+        cv2.line(crop_img,(cx,0),(cx,x),(255,0,0),1)
+        cv2.line(crop_img,(0,cy),(y,cy),(255,0,0),1)
+        cv2.drawContours(crop_img, contours, -1, (0,255,0), 1)
+        if cx >= (0.8*y):
+            print("Turn Right!")
+            spd = 0.1
+            ang = 2.0
+        if cx < (0.8*y) and cx > (0.3*y):
+            print("On Track!")
+            spd = 0.22
+            ang = 0
+        if cx <= (0.3*y):
+            print("Turn Left")
+            spd = 0.1
+            ang = -2.0
+    else:
+        print("I don't see the line")
+        spd = 0.0
+        ang = 0.0
+    #Display the resulting frame
+    control_linear_vel = spd
+    control_angular_vel = ang
+    # control_linear_vel = makeSimpleProfile(control_linear_vel, target_linear_vel, (LIN_VEL_STEP_SIZE/2.0))
+    twist.linear.x = control_linear_vel; twist.linear.y = 0; twist.linear.z = 0.0
 
-    cv2.destroyAllWindows()
-        
+    # control_angular_vel = makeSimpleProfile(control_angular_vel, target_angular_vel, (ANG_VEL_STEP_SIZE/2.0))
+    twist.angular.x = 0.0; twist.angular.y = 0.0; twist.angular.z = control_angular_vel
+
+    twist_pub.publish(twist)
+    image_pub.publish(bridge.cv2_to_imgmsg(cv_image, "bgr8"))
+
+def main():
+    rospy.init_node('line_follower', anonymous=True)
+    rospy.loginfo("line_follower started...")
+    f = rospy.Subscriber("/usb_cam/image_raw", Image, imageCallback) #Subscriber(node subscriber, msg_type, func_callback)
+    rospy.spin()
 
 if __name__ == '__main__':
     try:
-        segment()
+        main()
     except rospy.ROSInterruptException:
         pass
+
