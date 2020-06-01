@@ -206,10 +206,11 @@ include_directories(
 # catkin_add_nosetests(test)
 catkin_install_python(PROGRAMS
         scripts/offset_to_cmd_color.py
-        scripts/sentry.py
+        scripts/color_follower.py
 	      scripts/offset_to_cmd_marker.py
         scripts/marker_follower.py
 	      scripts/makibot_teleop.py
-        scripts/teleop_twist_to_pwm_serial.py
+        scripts/twist_to_pwm_serial.py
+        scripts/line_follower.py
         DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
 

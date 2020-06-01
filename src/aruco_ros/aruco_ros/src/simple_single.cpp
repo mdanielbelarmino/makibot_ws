@@ -45,7 +45,7 @@ or implied, of Rafael Muñoz Salinas.
 #include <tf/transform_broadcaster.h>
 #include <tf/transform_listener.h>
 #include <visualization_msgs/Marker.h>
-#include <std_msgs/Int8.h>
+#include <std_msgs/Int16.h>
 #include <dynamic_reconfigure/server.h>
 #include <aruco_ros/ArucoThresholdConfig.h>
 using namespace aruco;
@@ -58,7 +58,7 @@ private:
   tf::StampedTransform rightToLeft;
   bool useRectifiedImages;
   MarkerDetector mDetector;
-  std_msgs::Int8 ID_topic;
+  std_msgs::Int16 ID_topic;
   vector<Marker> markers;
   ros::Subscriber cam_info_sub;
   bool cam_info_received;
@@ -127,7 +127,7 @@ public:
     position_pub = nh.advertise<geometry_msgs::Vector3Stamped>("position", 100);
     marker_pub = nh.advertise<visualization_msgs::Marker>("marker", 10);
     pixel_pub = nh.advertise<geometry_msgs::PointStamped>("pixel", 10);
-    markerID_pub = nh.advertise<std_msgs::Int8>("marker_ID", 10);
+    markerID_pub = nh.advertise<std_msgs::Int16>("marker_ID", 10);
 
     nh.param<double>("marker_size", marker_size, 0.05);
     nh.param<int>("marker_id", marker_id, 300);
@@ -267,7 +267,7 @@ public:
             //Publish rviz marker representing the ArUco marker patch
             visualization_msgs::Marker visMarker;
             visMarker.header = transformMsg.header;
-            visMarker.id = 1;
+            visMarker.id = markers[i].id;
             visMarker.type   = visualization_msgs::Marker::CUBE;
             visMarker.action = visualization_msgs::Marker::ADD;
             visMarker.pose = poseMsg.pose;

@@ -1,6 +1,6 @@
-<!-- upload arduino_v1.ino on your arduino nano -->
+<!-- upload makibot_arduino_V1.ino on your arduino nano -->
 <launch>
-   <node name="sentry" pkg="makibot" type="sentry.py" output="screen">
+   <node name="color_follower" pkg="makibot" type="color_follower.py" output="screen">
   </node>
 
   <node name="offset_to_cmd_color" pkg="makibot" type="offset_to_cmd_color.py" output="screen">

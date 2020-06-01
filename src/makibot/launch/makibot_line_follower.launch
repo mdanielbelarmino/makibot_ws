@@ -1,0 +1,14 @@
+
+<!-- upload makibot_arduino_V2.ino on your arduino nano -->
+<launch>
+
+	<include file="$(find aruco_ros)/launch/usb_cam_stream_publisher.launch" />
+
+	<node name="line_follower" pkg="makibot" type="line_follower.py" output="screen">
+	</node>
+
+	<node name="twist_to_pwm" pkg="makibot" type="twist_to_pwm_serial.py" output="screen"> 
+	</node>
+
+</launch>
+
