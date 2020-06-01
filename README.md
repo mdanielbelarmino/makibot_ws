@@ -29,5 +29,5 @@ Line following with marker detection - To do\
 Line following with marker detection and object delivery - To do\
 Automatic transfer of objec to the robot - To do\
 Autonomous delivery robot - To do\
-Multiple Delivery Robot - To do\
+Multiple Delivery Robot - To do
 
