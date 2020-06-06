@@ -69,16 +69,16 @@ def imageCallback(msg):
         cv2.drawContours(crop_img, contours, -1, (0,255,0), 1)
         if cx >= (0.8*y):
             print("Turn Right!")
-            spd = 0.1
-            ang = 2.0
+            spd = 0.05
+            ang = -2.0
         if cx < (0.8*y) and cx > (0.3*y):
             print("On Track!")
             spd = 0.22
             ang = 0
         if cx <= (0.3*y):
             print("Turn Left")
-            spd = 0.1
-            ang = -2.0
+            spd = 0.05
+            ang = 2.0
     else:
         print("I don't see the line")
         spd = 0.0
