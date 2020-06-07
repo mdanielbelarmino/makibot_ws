@@ -25,7 +25,7 @@ Driving Servo and DC motor using Teleop- Done\
 Use Twist topic as robot motion commands - Done\
 Line detection - Done\
 Line Following - Done\
-Line following with marker detection - To do\
+Line following with marker detection - In progress\
 Line following with marker detection and object delivery - To do\
 Automatic transfer of objec to the robot - To do\
 Autonomous delivery robot - To do\
