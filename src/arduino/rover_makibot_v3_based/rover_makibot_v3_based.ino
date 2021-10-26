@@ -8,10 +8,10 @@
 #include <geometry_msgs/Vector3Stamped.h>
 #include <ros/time.h>
 
-#define pwm_pinL 5
-#define dir_pinL 4
-#define pwm_pinR 6
-#define dir_pinR 7
+#define pwm_pinL 9
+#define dir_pinL 17
+#define pwm_pinR 11
+#define dir_pinR 23
 #define front_tof_pin A0
 #define rear_tof_pin A1
 
@@ -136,8 +136,8 @@ void setup()
   nh.subscribe(sub);
   nh.advertise(speed_pub);
 
-  attachInterrupt(0, isrL, RISING); //attaching the interrupt to pin3
-  attachInterrupt(1, isrR, RISING); //attaching the interrupt to pin3
+  attachInterrupt(4, isrL, RISING); //attaching the interrupt to pin3
+  attachInterrupt(2, isrR, RISING); //attaching the interrupt to pin3
 
   pinMode(pwm_pinL, OUTPUT);
   pinMode(dir_pinL, OUTPUT);
@@ -156,8 +156,8 @@ int ctr = 0;
 
 void loop()
 {
-  detachInterrupt(0);           //detaches the interrupt
-  detachInterrupt(1);           //detaches the interrupt
+  detachInterrupt(4);           //detaches the interrupt
+  detachInterrupt(2);           //detaches the interrupt
 
   t1 = millis();    //finds the time
   bool front_tof = digitalRead(front_tof_pin);
@@ -169,21 +169,21 @@ void loop()
 
     float lp = pulseL;
     float rp = pulseR;
-    rpmL = (lp / 43) * 60;
-    rpmR = (rp / 43) * 60;
+    rpmL = (lp / 4.3) * 60;
+    rpmR = (rp / 4.3) * 60;
 
-    curr_spdL = (rpmL / 60) * (2 * PI * 0.055) * 100;
-    curr_spdR = (rpmR / 60) * (2 * PI * 0.055) * 100;
+    curr_spdL = (rpmL / 60) * (2 * PI * 0.08) * 100;
+    curr_spdR = (rpmR / 60) * (2 * PI * 0.08) * 100;
 
     pulseL = 0;
     pulseR = 0;
 
     t2 = t1;           //saves the current time
     int errL = des_spdL - curr_spdL;
-    pwmL = pwmL + (errL * 2); // proportional
+    pwmL = pwmL + (errL * 0.2); // proportional
 
     int errR = des_spdR - curr_spdR;
-    pwmR = pwmR + (errR * 2); // proportional
+    pwmR = pwmR + (errR * 0.2); // proportional
 
     pwmL = (pwmL > 255) ? 255 : pwmL;
     pwmR = (pwmR > 255) ? 255 : pwmR;
@@ -195,8 +195,8 @@ void loop()
     publishSpeed(LOOPTIME);
   }
 
-  attachInterrupt(0, isrL, RISING);
-  attachInterrupt(1, isrR, RISING);
+  attachInterrupt(4, isrL, RISING);
+  attachInterrupt(2, isrR, RISING);
 
   nh.spinOnce();
 
